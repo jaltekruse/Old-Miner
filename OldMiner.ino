@@ -8,10 +8,6 @@ License as published by the Free Software Foundation; either
 version 2.1 of the License, or (at your option) any later version.
 */
 
-#include <Arduboy2.h>
-#include <Tinyfont.h>//830 PROGMEM - 28 RAM
-#include "sprites.h"
-
 
 
 #include <SPI.h>
@@ -19,7 +15,9 @@ version 2.1 of the License, or (at your option) any later version.
 #include <Adafruit_GFX.h>
 #include <Adafruit_SH110X.h>
 
-#include "arduboy_mod/Arduboy2_mod.h"
+#include "Arduboy2/Arduboy2.h"
+#include <Tinyfont.h>//830 PROGMEM - 28 RAM
+#include "sprites.h"
 
 /* Uncomment the initialize the I2C address , uncomment only one, If you get a totally blank screen try the other*/
 #define i2c_Address 0x3c //initialize with the I2C addr 0x3C Typically eBay OLED's
