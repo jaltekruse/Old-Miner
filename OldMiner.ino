@@ -15,9 +15,9 @@ version 2.1 of the License, or (at your option) any later version.
 #include <Adafruit_GFX.h>
 #include <Adafruit_SH110X.h>
 
-#include "Arduboy2/Arduboy2.h"
+#include "Arduboy2.h"
 #include <Tinyfont.h>//830 PROGMEM - 28 RAM
-#include "sprites.h"
+#include "SpritesOldMiner.h"
 
 /* Uncomment the initialize the I2C address , uncomment only one, If you get a totally blank screen try the other*/
 #define i2c_Address 0x3c //initialize with the I2C addr 0x3C Typically eBay OLED's
@@ -244,14 +244,26 @@ entity entities[NUM_ENTITIES] = {
 // This function runs once in your game.
 // use it for anything that needs to be set only once in your game.
 void setup() {
-  // initiate arduboy instance
-  arduboy.begin();
+
   delay(1000);
   display.begin(i2c_Address, true);
+   
+  display.display();
+  delay(2000);
+
+  // Clear the buffer.
+  display.clearDisplay();
+
+  // draw a single pixel
+  display.drawPixel(10, 10, SH110X_WHITE);
 
   // TODO - this isn't working for me
   // Serial.begin(9600);
   // Serial.print("obj 3 type: ");
+
+  delay(10000);
+  // initiate arduboy instance
+  arduboy.begin();
 
   // here we set the frame rate to 15, we do not need to run at
   // default 60 and it saves us battery life
