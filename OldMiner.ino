@@ -8,8 +8,8 @@ License as published by the Free Software Foundation; either
 version 2.1 of the License, or (at your option) any later version.
 */
 
-#include <Arduboy2.h>
-#include <Tinyfont.h>//830 PROGMEM - 28 RAM
+
+// #include <Tinyfont.h>//830 PROGMEM - 28 RAM
 #include "sprites.h"
 
 
@@ -59,9 +59,9 @@ static const unsigned char PROGMEM logo16_glcd_bmp[] =
 };
 
 // make an instance of arduboy used for many functions
-Arduboy2 arduboy;
+//Arduboy2 arduboy;
 
-Tinyfont tinyfont = Tinyfont(arduboy.sBuffer, Arduboy2::width(), Arduboy2::height());
+//Tinyfont tinyfont = Tinyfont(arduboy.sBuffer, Arduboy2::width(), Arduboy2::height());
 
 const int FONT_HEIGHT = 10;
 const int SM_FONT_HEIGHT = 8;
@@ -247,7 +247,8 @@ entity entities[NUM_ENTITIES] = {
 // use it for anything that needs to be set only once in your game.
 void setup() {
   // initiate arduboy instance
-  arduboy.begin();
+  // arduboy.begin();
+
   delay(1000);
   display.begin(i2c_Address, true);
 
@@ -257,7 +258,7 @@ void setup() {
 
   // here we set the frame rate to 15, we do not need to run at
   // default 60 and it saves us battery life
-  arduboy.setFrameRate(FPS);
+  // arduboy.setFrameRate(FPS);
 }
 
 float distance() {
@@ -278,9 +279,9 @@ void game_loop() {
 
   }
 
-  tinyfont.setCursor(0, 2);
-  tinyfont.print("T ");
-  tinyfont.print(time_left / 60);
+  //tinyfont.setCursor(0, 2);
+  //tinyfont.print("T ");
+  //tinyfont.print(time_left / 60);
 
   // then we print to screen what is in the Quotation marks ""
   // arduboy.print(F("Hello, world!"));
@@ -301,10 +302,10 @@ void game_loop() {
 
     if (e->type == MOUSE1 || e->type == MOUSE_DIAMOND) {
       // transition animation frames every 10 draw frames
-      Sprites::drawPlusMask(e->x, e->y, sprites_plus_mask, (time_left / 10) % 2 == 0 ? MOUSE1 : MOUSE2);
+      // Sprites::drawPlusMask(e->x, e->y, sprites_plus_mask, (time_left / 10) % 2 == 0 ? MOUSE1 : MOUSE2);
 
       if (e->type == MOUSE_DIAMOND) {
-        Sprites::drawPlusMask(e->x, e->y-5, sprites_plus_mask, DIAMOND);
+        // Sprites::drawPlusMask(e->x, e->y-5, sprites_plus_mask, DIAMOND);
       }
 
       // keep running around unless currently being reeled in
@@ -315,7 +316,7 @@ void game_loop() {
         if (e->x > 110 || e->x < 0) e->dir = -e->dir;
       }
     } else {
-      Sprites::drawPlusMask(e->x, e->y, sprites_plus_mask, e->type);
+      // Sprites::drawPlusMask(e->x, e->y, sprites_plus_mask, e->type);
     }
 
     if (state == SHOOTING & detect_collision(e, claw_x, claw_y)) {
@@ -324,24 +325,24 @@ void game_loop() {
     }
   }
 
-  arduboy.drawLine(64, 4, claw_x, claw_y, WHITE);
+  //arduboy.drawLine(64, 4, claw_x, claw_y, WHITE);
 
   if (state == AIMING) {
     // TODO - maybe add some acceleration, rather than constant change of angle
     if (direction == RIGHT ||
-        (DEBUG_CONTROLS && arduboy.pressed(RIGHT_BUTTON))) {
+        (DEBUG_CONTROLS && false /*arduboy.pressed(RIGHT_BUTTON) */)) {
       if (angle < PI/2) angle += 0.02;
       else if (!DEBUG_CONTROLS) direction = LEFT;
     }
 
     if (direction == LEFT ||
-        (DEBUG_CONTROLS && arduboy.pressed(LEFT_BUTTON))) {
+        (DEBUG_CONTROLS && false /*arduboy.pressed(LEFT_BUTTON) */)) {
       if (angle > -PI/2) angle -= 0.02;
       else if (!DEBUG_CONTROLS) direction = RIGHT;
     }
-    if (arduboy.pressed(DOWN_BUTTON)) {
-      state = SHOOTING;
-    }
+    // if (arduboy.pressed(DOWN_BUTTON)) {
+    //   state = SHOOTING;
+    // }
   }
 
   if (state == SHOOTING) {
@@ -364,7 +365,7 @@ void game_loop() {
   }
 
   if (state == REELING_OBJ && thrown_dynamite.type == DYNAMITE) {
-    Sprites::drawPlusMask(thrown_dynamite.x, thrown_dynamite.y, sprites_plus_mask, DYNAMITE);
+    // Sprites::drawPlusMask(thrown_dynamite.x, thrown_dynamite.y, sprites_plus_mask, DYNAMITE);
     thrown_dynamite.thrown_dist += .8*(time_left % 2 == 0 ? 1 : 0);
     thrown_dynamite.x = 64 - HALF_SPRITE + thrown_dynamite.thrown_dist*sin(angle);
     thrown_dynamite.y = -HALF_SPRITE + thrown_dynamite.thrown_dist*cos(angle);
@@ -385,13 +386,13 @@ void game_loop() {
     length -= 1.0 / entity_weight(obj_in_claw->type);
 
     // can only throw dynamite when reeling in something
-    if (arduboy.pressed(UP_BUTTON) && dynamite_sticks > 0 && thrown_dynamite.type == NOTHING) {
-      dynamite_sticks--;
-      thrown_dynamite.type = DYNAMITE;
-      thrown_dynamite.thrown_dist = 0;
-      thrown_dynamite.x = 64 - HALF_SPRITE;
-      thrown_dynamite.y = -HALF_SPRITE;
-    }
+    // if (arduboy.pressed(UP_BUTTON) && dynamite_sticks > 0 && thrown_dynamite.type == NOTHING) {
+    //   dynamite_sticks--;
+    //   thrown_dynamite.type = DYNAMITE;
+    //   thrown_dynamite.thrown_dist = 0;
+    //   thrown_dynamite.x = 64 - HALF_SPRITE;
+    //   thrown_dynamite.y = -HALF_SPRITE;
+    // }
     if (length < 5) {
       length = 5;
       angle = -PI/4;
@@ -405,14 +406,14 @@ void game_loop() {
 
 void render_money() {
 
-  Sprites::drawPlusMask(72, -5, sprites_plus_mask, DYNAMITE);
-  tinyfont.setCursor(82, 2);
-  tinyfont.print(dynamite_sticks);
+  // Sprites::drawPlusMask(72, -5, sprites_plus_mask, DYNAMITE);
+  // tinyfont.setCursor(82, 2);
+  // tinyfont.print(dynamite_sticks);
 
-  arduboy.setCursor(90, 0);
-  arduboy.print("$ ");
-  tinyfont.setCursor(97, 2);
-  tinyfont.print(money);
+  // arduboy.setCursor(90, 0);
+  // arduboy.print("$ ");
+  // tinyfont.setCursor(97, 2);
+  // tinyfont.print(money);
 }
 
 // shop state
@@ -454,166 +455,175 @@ void init_shop(){
 
 void shop_loop() {
   render_money();
-  tinyfont.setCursor(0, 0);
-  tinyfont.print("Shop");
-  arduboy.drawLine(0, 6, 20, 6, WHITE);
+  // tinyfont.setCursor(0, 0);
+  // tinyfont.print("Shop");
+  // arduboy.drawLine(0, 6, 20, 6, WHITE);
 
-  if (arduboy.justPressed(UP_BUTTON) && shop_selection > 0) {
-    shop_selection--;
-  }
+  // if (arduboy.justPressed(UP_BUTTON) && shop_selection > 0) {
+  //   shop_selection--;
+  // }
 
-  if (arduboy.justPressed(DOWN_BUTTON) && shop_selection < NUM_ITEMS - 1) {
-    shop_selection++;
-  }
+  // if (arduboy.justPressed(DOWN_BUTTON) && shop_selection < NUM_ITEMS - 1) {
+  //   shop_selection++;
+  // }
 
-  if (arduboy.justPressed(A_BUTTON) && items[shop_selection].type != START_DAY) {
-    if (items[shop_selection].price > 0) {
-      money -= items[shop_selection].price;
-      items[shop_selection].price = 0;
-      switch(items[shop_selection].type) {
-        case PERMIT:
-          ; // to nothing, there is logic below that will avlid re-buying the permit automatically
-            // on the start of the day
-          break;
-        case DYNAMITE_ITEM:
-          dynamite_sticks++;
-          break;
-      }
-    }
-  }
+  // if (arduboy.justPressed(A_BUTTON) && items[shop_selection].type != START_DAY) {
+  //   if (items[shop_selection].price > 0) {
+  //     money -= items[shop_selection].price;
+  //     items[shop_selection].price = 0;
+  //     switch(items[shop_selection].type) {
+  //       case PERMIT:
+  //         ; // to nothing, there is logic below that will avlid re-buying the permit automatically
+  //           // on the start of the day
+  //         break;
+  //       case DYNAMITE_ITEM:
+  //         dynamite_sticks++;
+  //         break;
+  //     }
+  //   }
+  // }
 
-  if (arduboy.justPressed(A_BUTTON) && items[shop_selection].type == START_DAY) {
-    // if they didn't buy the permit, do it automatically
-    if (items[0].price) {
-      money -= items[0].price;
-    }
+  // if (arduboy.justPressed(A_BUTTON) && items[shop_selection].type == START_DAY) {
+  //   // if they didn't buy the permit, do it automatically
+  //   if (items[0].price) {
+  //     money -= items[0].price;
+  //   }
 
-    reset_to_new_day();
-    game_state = MINING;
+  //   reset_to_new_day();
+  //   game_state = MINING;
 
-    entity* e;
-    arduboy.initRandomSeed();
-    // Randomize item locations
-    for (int i = 0; i < NUM_ENTITIES; i++) {
-      entities[i].x = random(5, 110);
-      entities[i].y = random(20, 50);
-      entities[i].type = random(0, MOUSE_DIAMOND + 1);
-      // currently some things are coupled together poorly, dynamite and mouse2 aren't valid objects to put
-      // on the screen, but they are in the sprite sheet
-      if (entities[i].type == MOUSE2 || entities[i].type == DYNAMITE) entities[i].type = random(0, MOUSE1);
+  //   entity* e;
+  //   arduboy.initRandomSeed();
+  //   // Randomize item locations
+  //   for (int i = 0; i < NUM_ENTITIES; i++) {
+  //     entities[i].x = random(5, 110);
+  //     entities[i].y = random(20, 50);
+  //     entities[i].type = random(0, MOUSE_DIAMOND + 1);
+  //     // currently some things are coupled together poorly, dynamite and mouse2 aren't valid objects to put
+  //     // on the screen, but they are in the sprite sheet
+  //     if (entities[i].type == MOUSE2 || entities[i].type == DYNAMITE) entities[i].type = random(0, MOUSE1);
 
-      // these are only accessed when there is a mouse at a given slot in the array, so safe to unconditionally set it
-      entities[i].dir = LEFT;
-    }
-  }
+  //     // these are only accessed when there is a mouse at a given slot in the array, so safe to unconditionally set it
+  //     entities[i].dir = LEFT;
+  //   }
+  // }
 
-  int icon_width = 8;
-  Item* item;
+  // int icon_width = 8;
+  // Item* item;
 
-  for (int i = 0; i < NUM_ITEMS; i++) {
-    int y_pos = 9 + SM_FONT_HEIGHT * i;
-    if (i == shop_selection) {
-      int select_y = y_pos + SM_FONT_HEIGHT - 2;
-      arduboy.drawLine(icon_width, select_y, 25, select_y, WHITE);
-    }
+  // for (int i = 0; i < NUM_ITEMS; i++) {
+  //   int y_pos = 9 + SM_FONT_HEIGHT * i;
+  //   if (i == shop_selection) {
+  //     int select_y = y_pos + SM_FONT_HEIGHT - 2;
+  //     arduboy.drawLine(icon_width, select_y, 25, select_y, WHITE);
+  //   }
 
-    item = &items[i];
-    if (item->type == NOTHING) continue;
+  //   item = &items[i];
+  //   if (item->type == NOTHING) continue;
 
-    int price = item->price;
-    if (item->type == DYNAMITE_ITEM) {
-      Sprites::drawPlusMask(0 - 4, y_pos - 6, sprites_plus_mask, DYNAMITE);
-    }
-    tinyfont.setCursor(icon_width, y_pos);
-    switch(item->type) {
-      case PERMIT:
-        tinyfont.print("Permit: Required");
-        break;
-      case START_DAY:
-        tinyfont.print("Start Mining");
-        continue;
-        break;
-      case DYNAMITE_ITEM:
-        if (price < 0)
-          tinyfont.print("Dynamite: Sold out");
-        else
-          tinyfont.print("Dynamite");
-        break;
-    }
+  //   int price = item->price;
+  //   if (item->type == DYNAMITE_ITEM) {
+  //     Sprites::drawPlusMask(0 - 4, y_pos - 6, sprites_plus_mask, DYNAMITE);
+  //   }
+  //   tinyfont.setCursor(icon_width, y_pos);
+  //   switch(item->type) {
+  //     case PERMIT:
+  //       tinyfont.print("Permit: Required");
+  //       break;
+  //     case START_DAY:
+  //       tinyfont.print("Start Mining");
+  //       continue;
+  //       break;
+  //     case DYNAMITE_ITEM:
+  //       if (price < 0)
+  //         tinyfont.print("Dynamite: Sold out");
+  //       else
+  //         tinyfont.print("Dynamite");
+  //       break;
+  //   }
 
-    tinyfont.setCursor(128 - 3 * icon_width, y_pos);
-    if (price > 0)
-      tinyfont.print(price);
-    else
-      tinyfont.print("-");
-  }
+  //   tinyfont.setCursor(128 - 3 * icon_width, y_pos);
+  //   if (price > 0)
+  //     tinyfont.print(price);
+  //   else
+  //     tinyfont.print("-");
+  // }
 }
 
 // our main game loop, this runs once every cycle/frame.
 // this is where our game logic goes.
 void loop() {
   // pause render until it's time for the next frame
-  if (!(arduboy.nextFrame()))
-    return;
+  // if (!(arduboy.nextFrame()))
+  //   return;
 
-  arduboy.pollButtons();
+  // arduboy.pollButtons();
 
-  // first we clear our screen to black
-  arduboy.clear();
+  // // first we clear our screen to black
+  // arduboy.clear();
   
   switch(game_state) {
     case TITLE:
-      arduboy.setCursor(30, 3 * FONT_HEIGHT);
-      arduboy.print("Old Miner");
-      arduboy.setCursor(30, 4 * FONT_HEIGHT);
-      arduboy.print("By Jason");
-      if (arduboy.justPressed(A_BUTTON)) {
-        game_state = STORY;
+      display.setTextSize(1);
+      display.setTextColor(SH110X_WHITE);
+      display.setCursor(0, 0);
+      char* game_title = "Old Miner";
+      for (uint8_t i = 0; i < 9; i++) {
+        display.write(game_title[i]);
       }
+      display.display();
+      delay(1);
+      // arduboy.setCursor(30, 3 * FONT_HEIGHT);
+      // arduboy.print("Old Miner");
+      // arduboy.setCursor(30, 4 * FONT_HEIGHT);
+      // arduboy.print("By Jason");
+      // if (arduboy.justPressed(A_BUTTON)) {
+      //   game_state = STORY;
+      // }
       break;
-    case STORY:
-      arduboy.setCursor(0, 0);
-      arduboy.print("There's gold in them");
-      arduboy.setCursor(0, 1 * FONT_HEIGHT);
-      arduboy.print("hills! And you want");
+    // case STORY:
+    //   arduboy.setCursor(0, 0);
+    //   arduboy.print("There's gold in them");
+    //   arduboy.setCursor(0, 1 * FONT_HEIGHT);
+    //   arduboy.print("hills! And you want");
 
-      arduboy.setCursor(0, 2 * FONT_HEIGHT);
-      arduboy.print("to strike it rich.");
-      arduboy.setCursor(0, 3 * FONT_HEIGHT);
-      arduboy.print("You need a permit");
-      arduboy.setCursor(0, 4 * FONT_HEIGHT);
-      arduboy.print("each day, and can't");
-      arduboy.setCursor(0, 5 * FONT_HEIGHT);
-      arduboy.print("end a day with debt.");
+    //   arduboy.setCursor(0, 2 * FONT_HEIGHT);
+    //   arduboy.print("to strike it rich.");
+    //   arduboy.setCursor(0, 3 * FONT_HEIGHT);
+    //   arduboy.print("You need a permit");
+    //   arduboy.setCursor(0, 4 * FONT_HEIGHT);
+    //   arduboy.print("each day, and can't");
+    //   arduboy.setCursor(0, 5 * FONT_HEIGHT);
+    //   arduboy.print("end a day with debt.");
 
-      if (arduboy.justPressed(A_BUTTON)) {
-        init_shop();
-        game_state = SHOP;
-      }
-      break;
-    case SHOP:
-      shop_loop();
-      break;
-    case BANKRUPT:
-      arduboy.setCursor(0, 0);
-      arduboy.print("You ended a day with");
-      arduboy.setCursor(0, 1 * FONT_HEIGHT);
-      arduboy.print("debt and had to");
-      arduboy.setCursor(0, 2 * FONT_HEIGHT);
-      arduboy.print("declare bankruptcy!");
+    //   if (arduboy.justPressed(A_BUTTON)) {
+    //     init_shop();
+    //     game_state = SHOP;
+    //   }
+    //   break;
+    // case SHOP:
+    //   shop_loop();
+    //   break;
+    // case BANKRUPT:
+    //   arduboy.setCursor(0, 0);
+    //   arduboy.print("You ended a day with");
+    //   arduboy.setCursor(0, 1 * FONT_HEIGHT);
+    //   arduboy.print("debt and had to");
+    //   arduboy.setCursor(0, 2 * FONT_HEIGHT);
+    //   arduboy.print("declare bankruptcy!");
 
-      arduboy.setCursor(0, 4 * FONT_HEIGHT);
-      arduboy.print("Play again?");
+    //   arduboy.setCursor(0, 4 * FONT_HEIGHT);
+    //   arduboy.print("Play again?");
 
-      if (arduboy.justPressed(A_BUTTON)) {
-        reset_game();
-        game_state = TITLE;
-      }
-      break;
-    case MINING:
-      game_loop();
+    //   if (arduboy.justPressed(A_BUTTON)) {
+    //     reset_game();
+    //     game_state = TITLE;
+    //   }
+    //   break;
+    // case MINING:
+    //   game_loop();
   }
 
   // then we finally we tell the arduboy to display what we just wrote to the display
-  arduboy.display();
+  // arduboy.display();
 }
