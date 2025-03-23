@@ -12,14 +12,13 @@ version 2.1 of the License, or (at your option) any later version.
 // #include <Tinyfont.h>//830 PROGMEM - 28 RAM
 #include "sprites.h"
 
-
+// This didn't work, just added a clearDisplay in setup to fix
+#define SH110X_NO_SPLASH
 
 #include <SPI.h>
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SH110X.h>
-
-#include "arduboy_mod/Arduboy2_mod.h"
 
 /* Uncomment the initialize the I2C address , uncomment only one, If you get a totally blank screen try the other*/
 #define i2c_Address 0x3c //initialize with the I2C addr 0x3C Typically eBay OLED's
@@ -58,8 +57,44 @@ static const unsigned char PROGMEM logo16_glcd_bmp[] =
   B00000000, B00110000
 };
 
+class ArduboyJason;
+
+class ArduboyJason
+{
+ public:
+  void begin() {}
+
+  void setCursor(int x, int y) {
+     display.setCursor(x, y);
+  }
+
+  void print(char* text) {
+    display.setTextSize(1);
+    display.setTextColor(SH110X_WHITE);
+    for (uint8_t i = 0; i < 9; i++) {
+      display.write(text[i]);
+    }
+    display.display();
+    delay(1);
+  }
+
+      //   display.setTextSize(1);
+      // display.setTextColor(SH110X_WHITE);
+      // display.setCursor(0, 0);
+      // char* game_title = "Old Miner";
+      // for (uint8_t i = 0; i < 9; i++) {
+      //   display.write(game_title[i]);
+      // }
+      // display.display();
+      // delay(1);
+      // arduboy.setCursor(30, 3 * FONT_HEIGHT);
+      // arduboy.print("Old Miner");
+      // arduboy.setCursor(30, 4 * FONT_HEIGHT);
+      // arduboy.print("By Jason");
+};
+
 // make an instance of arduboy used for many functions
-//Arduboy2 arduboy;
+ArduboyJason arduboy;
 
 //Tinyfont tinyfont = Tinyfont(arduboy.sBuffer, Arduboy2::width(), Arduboy2::height());
 
@@ -251,6 +286,8 @@ void setup() {
 
   delay(1000);
   display.begin(i2c_Address, true);
+
+  display.clearDisplay();
 
   // TODO - this isn't working for me
   // Serial.begin(9600);
@@ -564,19 +601,19 @@ void loop() {
   
   switch(game_state) {
     case TITLE:
-      display.setTextSize(1);
-      display.setTextColor(SH110X_WHITE);
-      display.setCursor(0, 0);
-      char* game_title = "Old Miner";
-      for (uint8_t i = 0; i < 9; i++) {
-        display.write(game_title[i]);
-      }
-      display.display();
-      delay(1);
-      // arduboy.setCursor(30, 3 * FONT_HEIGHT);
-      // arduboy.print("Old Miner");
-      // arduboy.setCursor(30, 4 * FONT_HEIGHT);
-      // arduboy.print("By Jason");
+      //       display.setTextSize(1);
+      // display.setTextColor(SH110X_WHITE);
+      // display.setCursor(0, 0);
+      // char* game_title = "Old Miner";
+      // for (uint8_t i = 0; i < 9; i++) {
+      //   display.write(game_title[i]);
+      // }
+      // display.display();
+      // delay(1);
+      arduboy.setCursor(30, 3 * FONT_HEIGHT);
+      arduboy.print("Old Miner");
+      arduboy.setCursor(30, 4 * FONT_HEIGHT);
+      arduboy.print("By Jason");
       // if (arduboy.justPressed(A_BUTTON)) {
       //   game_state = STORY;
       // }
