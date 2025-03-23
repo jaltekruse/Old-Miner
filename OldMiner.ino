@@ -57,6 +57,12 @@ static const unsigned char PROGMEM logo16_glcd_bmp[] =
   B00000000, B00110000
 };
 
+#define A_BUTTON      1
+#define LEFT_BUTTON   2
+#define RIGHT_BUTTON  3
+#define DOWN_BUTTON   4
+#define UP_BUTTON     5
+
 class ArduboyJason;
 
 class ArduboyJason
@@ -76,6 +82,10 @@ class ArduboyJason
     }
     display.display();
     delay(1);
+  }
+
+  int justPressed(int button) {
+    return 0;
   }
 
       //   display.setTextSize(1);
@@ -614,51 +624,51 @@ void loop() {
       arduboy.print("Old Miner");
       arduboy.setCursor(30, 4 * FONT_HEIGHT);
       arduboy.print("By Jason");
-      // if (arduboy.justPressed(A_BUTTON)) {
-      //   game_state = STORY;
-      // }
+      if (arduboy.justPressed(A_BUTTON)) {
+        game_state = STORY;
+      }
       break;
-    // case STORY:
-    //   arduboy.setCursor(0, 0);
-    //   arduboy.print("There's gold in them");
-    //   arduboy.setCursor(0, 1 * FONT_HEIGHT);
-    //   arduboy.print("hills! And you want");
+    case STORY:
+      arduboy.setCursor(0, 0);
+      arduboy.print("There's gold in them");
+      arduboy.setCursor(0, 1 * FONT_HEIGHT);
+      arduboy.print("hills! And you want");
 
-    //   arduboy.setCursor(0, 2 * FONT_HEIGHT);
-    //   arduboy.print("to strike it rich.");
-    //   arduboy.setCursor(0, 3 * FONT_HEIGHT);
-    //   arduboy.print("You need a permit");
-    //   arduboy.setCursor(0, 4 * FONT_HEIGHT);
-    //   arduboy.print("each day, and can't");
-    //   arduboy.setCursor(0, 5 * FONT_HEIGHT);
-    //   arduboy.print("end a day with debt.");
+      arduboy.setCursor(0, 2 * FONT_HEIGHT);
+      arduboy.print("to strike it rich.");
+      arduboy.setCursor(0, 3 * FONT_HEIGHT);
+      arduboy.print("You need a permit");
+      arduboy.setCursor(0, 4 * FONT_HEIGHT);
+      arduboy.print("each day, and can't");
+      arduboy.setCursor(0, 5 * FONT_HEIGHT);
+      arduboy.print("end a day with debt.");
 
-    //   if (arduboy.justPressed(A_BUTTON)) {
-    //     init_shop();
-    //     game_state = SHOP;
-    //   }
-    //   break;
-    // case SHOP:
-    //   shop_loop();
-    //   break;
-    // case BANKRUPT:
-    //   arduboy.setCursor(0, 0);
-    //   arduboy.print("You ended a day with");
-    //   arduboy.setCursor(0, 1 * FONT_HEIGHT);
-    //   arduboy.print("debt and had to");
-    //   arduboy.setCursor(0, 2 * FONT_HEIGHT);
-    //   arduboy.print("declare bankruptcy!");
+      if (arduboy.justPressed(A_BUTTON)) {
+        init_shop();
+        game_state = SHOP;
+      }
+      break;
+    case SHOP:
+      shop_loop();
+      break;
+    case BANKRUPT:
+      arduboy.setCursor(0, 0);
+      arduboy.print("You ended a day with");
+      arduboy.setCursor(0, 1 * FONT_HEIGHT);
+      arduboy.print("debt and had to");
+      arduboy.setCursor(0, 2 * FONT_HEIGHT);
+      arduboy.print("declare bankruptcy!");
 
-    //   arduboy.setCursor(0, 4 * FONT_HEIGHT);
-    //   arduboy.print("Play again?");
+      arduboy.setCursor(0, 4 * FONT_HEIGHT);
+      arduboy.print("Play again?");
 
-    //   if (arduboy.justPressed(A_BUTTON)) {
-    //     reset_game();
-    //     game_state = TITLE;
-    //   }
-    //   break;
-    // case MINING:
-    //   game_loop();
+      if (arduboy.justPressed(A_BUTTON)) {
+        reset_game();
+        game_state = TITLE;
+      }
+      break;
+    case MINING:
+      game_loop();
   }
 
   // then we finally we tell the arduboy to display what we just wrote to the display
