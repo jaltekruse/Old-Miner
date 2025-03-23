@@ -57,55 +57,6 @@ static const unsigned char PROGMEM logo16_glcd_bmp[] =
   B00000000, B00110000
 };
 
-#define A_BUTTON      1
-#define LEFT_BUTTON   2
-#define RIGHT_BUTTON  3
-#define DOWN_BUTTON   4
-#define UP_BUTTON     5
-
-class ArduboyJason;
-
-class ArduboyJason
-{
- public:
-  void begin() {}
-
-  void setCursor(int x, int y) {
-     display.setCursor(x, y);
-  }
-
-  void print(char* text) {
-    display.setTextSize(1);
-    display.setTextColor(SH110X_WHITE);
-    for (uint8_t i = 0; i < 9; i++) {
-      display.write(text[i]);
-    }
-    display.display();
-    delay(1);
-  }
-
-  int justPressed(int button) {
-    return 0;
-  }
-
-      //   display.setTextSize(1);
-      // display.setTextColor(SH110X_WHITE);
-      // display.setCursor(0, 0);
-      // char* game_title = "Old Miner";
-      // for (uint8_t i = 0; i < 9; i++) {
-      //   display.write(game_title[i]);
-      // }
-      // display.display();
-      // delay(1);
-      // arduboy.setCursor(30, 3 * FONT_HEIGHT);
-      // arduboy.print("Old Miner");
-      // arduboy.setCursor(30, 4 * FONT_HEIGHT);
-      // arduboy.print("By Jason");
-};
-
-// make an instance of arduboy used for many functions
-ArduboyJason arduboy;
-
 //Tinyfont tinyfont = Tinyfont(arduboy.sBuffer, Arduboy2::width(), Arduboy2::height());
 
 const int FONT_HEIGHT = 10;
@@ -287,26 +238,6 @@ entity entities[NUM_ENTITIES] = {
 //   {type: SMALL_GOLD, x: 90, y: 50},
 //   {type: SMALL_GOLD, x: 110, y: 50}
 // };
-
-// This function runs once in your game.
-// use it for anything that needs to be set only once in your game.
-void setup() {
-  // initiate arduboy instance
-  // arduboy.begin();
-
-  delay(1000);
-  display.begin(i2c_Address, true);
-
-  display.clearDisplay();
-
-  // TODO - this isn't working for me
-  // Serial.begin(9600);
-  // Serial.print("obj 3 type: ");
-
-  // here we set the frame rate to 15, we do not need to run at
-  // default 60 and it saves us battery life
-  // arduboy.setFrameRate(FPS);
-}
 
 float distance() {
   return 0;
@@ -595,6 +526,76 @@ void shop_loop() {
   //   else
   //     tinyfont.print("-");
   // }
+}
+
+
+#define A_BUTTON      1
+#define LEFT_BUTTON   2
+#define RIGHT_BUTTON  3
+#define DOWN_BUTTON   4
+#define UP_BUTTON     5
+
+class ArduboyJason;
+
+class ArduboyJason
+{
+ public:
+  void begin() {}
+
+  void setCursor(int x, int y) {
+     display.setCursor(x, y);
+  }
+
+  void print(char* text) {
+    display.setTextSize(1);
+    display.setTextColor(SH110X_WHITE);
+    for (uint8_t i = 0; i < 9; i++) {
+      display.write(text[i]);
+    }
+    display.display();
+    delay(1);
+  }
+
+  int justPressed(int button) {
+    return 0;
+  }
+
+      //   display.setTextSize(1);
+      // display.setTextColor(SH110X_WHITE);
+      // display.setCursor(0, 0);
+      // char* game_title = "Old Miner";
+      // for (uint8_t i = 0; i < 9; i++) {
+      //   display.write(game_title[i]);
+      // }
+      // display.display();
+      // delay(1);
+      // arduboy.setCursor(30, 3 * FONT_HEIGHT);
+      // arduboy.print("Old Miner");
+      // arduboy.setCursor(30, 4 * FONT_HEIGHT);
+      // arduboy.print("By Jason");
+};
+
+// make an instance of arduboy used for many functions
+ArduboyJason arduboy;
+
+// This function runs once in your game.
+// use it for anything that needs to be set only once in your game.
+void setup() {
+  // initiate arduboy instance
+  // arduboy.begin();
+
+  delay(1000);
+  display.begin(i2c_Address, true);
+
+  display.clearDisplay();
+
+  // TODO - this isn't working for me
+  // Serial.begin(9600);
+  // Serial.print("obj 3 type: ");
+
+  // here we set the frame rate to 15, we do not need to run at
+  // default 60 and it saves us battery life
+  // arduboy.setFrameRate(FPS);
 }
 
 // our main game loop, this runs once every cycle/frame.
