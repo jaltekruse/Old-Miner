@@ -200,8 +200,79 @@ entity entities[NUM_ENTITIES] = {
 // This function runs once in your game.
 // use it for anything that needs to be set only once in your game.
 void setup() {
+
+  delay(250); // wait for the OLED to power up
+
   // initiate arduboy instance
   arduboy.begin();
+
+  #define SH110X_DISPLAYOFF 0xAE
+#define SH110X_SETDISPLAYCLOCKDIV 0xD5
+#define SH110X_SETMULTIPLEX 0xA8
+#define SH110X_SETDISPLAYOFFSET 0xD3 
+#define SH110X_SETSTARTLINE 0x40
+#define SH110X_DCDC 0xAD
+#define SH110X_SEGREMAP 0xA0 
+#define SH110X_COMSCANDEC 0xC8 
+#define SH110X_SETCOMPINS 0xDA
+#define SH110X_SETCONTRAST 0x81
+#define SH110X_SETPRECHARGE 0xD9
+#define SH110X_SETVCOMDETECT 0xDB
+#define SH110X_NORMALDISPLAY 0xA6 
+#define SH110X_MEMORYMODE 0x20
+#define SH110X_DISPLAYALLON_RESUME 0xA4
+#define SH110X_DISPLAYON 0xAF
+#define SH110X_COMSCANINC 0xC0         ///< Not currently used, JASON, maybe it is used?
+#define SH110X_SETDISPSTARTLINE                                                \
+  0xDC ///< Specify Column address to determine the initial display line or
+       ///< COM0.
+
+  // static const uint8_t init[] = {
+  //     SH110X_DISPLAYOFF,               // 0xAE
+  //     SH110X_SETDISPLAYCLOCKDIV, 0x51, // 0xd5, 0x51,
+  //     SH110X_MEMORYMODE,               // 0x20
+  //     SH110X_SETCONTRAST, 0x4F,        // 0x81, 0x4F
+  //     SH110X_DCDC, 0x8A,               // 0xAD, 0x8A
+  //     SH110X_SEGREMAP,                 // 0xA0
+  //     SH110X_COMSCANINC,               // 0xC0
+  //     SH110X_SETDISPSTARTLINE, 0x0,    // 0xDC 0x00
+  //     SH110X_SETDISPLAYOFFSET, 0x60,   // 0xd3, 0x60,
+  //     SH110X_SETPRECHARGE, 0x22,       // 0xd9, 0x22,
+  //     SH110X_SETVCOMDETECT, 0x35,      // 0xdb, 0x35,
+  //     SH110X_SETMULTIPLEX, 0x3F,       // 0xa8, 0x3f,
+  //     // SH110X_SETPAGEADDR,                  // 0xb0
+  //     // SH110X_SETCOMPINS, 0x12,             // 0xda, 0x12,
+  //     SH110X_DISPLAYALLON_RESUME, // 0xa4
+  //     SH110X_NORMALDISPLAY,       // 0xa6
+  // };
+
+    const PROGMEM uint8_t init[] = {
+    SH110X_DISPLAYOFF,               // 0xAE
+    SH110X_SETDISPLAYCLOCKDIV, 0x80, // 0xD5, 0x80,
+    SH110X_SETMULTIPLEX, 0x3F,       // 0xA8, 0x3F,
+    SH110X_SETDISPLAYOFFSET, 0x00,   // 0xD3, 0x00,
+    SH110X_SETSTARTLINE,             // 0x40
+    SH110X_DCDC, 0x8B,               // DC/DC on
+    SH110X_SEGREMAP + 1,             // 0xA1
+    SH110X_COMSCANDEC,               // 0xC8
+    SH110X_SETCOMPINS, 0x12,         // 0xDA, 0x12,
+    SH110X_SETCONTRAST, 0xFF,        // 0x81, 0xFF
+    SH110X_SETPRECHARGE, 0x1F,       // 0xD9, 0x1F,
+    SH110X_SETVCOMDETECT, 0x40,      // 0xDB, 0x40,
+    0x33,                            // Set VPP to 9V
+    SH110X_NORMALDISPLAY,
+    SH110X_MEMORYMODE, 0x10,         // 0x20, 0x00
+    SH110X_DISPLAYALLON_RESUME,
+  };
+
+  arduboy.i2c_start(SSD1306_I2C_CMD);
+  for (uint8_t i = 0; i < sizeof(init); i++)
+    arduboy.i2c_sendByte(pgm_read_byte(init + i));
+  arduboy.i2c_stop();
+  
+  delay(2000);
+  
+  arduboy.sendLCDCommand(SH110X_DISPLAYON);
 
   // TODO - this isn't working for me
   // Serial.begin(9600);
