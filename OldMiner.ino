@@ -542,6 +542,11 @@ class ArduboyJason
  public:
   void begin() {}
 
+  int nextFrame() {
+    delay(100);
+    return 1;
+  }
+
   void setCursor(int x, int y) {
      display.setCursor(x, y);
   }
@@ -578,13 +583,18 @@ class ArduboyJason
 // make an instance of arduboy used for many functions
 ArduboyJason arduboy;
 
+#define A_BUTTON_PIN 7
+#define B_BUTTON_PIN 8
+
 // This function runs once in your game.
 // use it for anything that needs to be set only once in your game.
 void setup() {
   // initiate arduboy instance
   // arduboy.begin();
 
-  delay(1000);
+  pinMode(A_BUTTON_PIN, INPUT_PULLUP);
+
+  // delay(1000);
   display.begin(i2c_Address, true);
 
   display.clearDisplay();
@@ -602,8 +612,11 @@ void setup() {
 // this is where our game logic goes.
 void loop() {
   // pause render until it's time for the next frame
-  // if (!(arduboy.nextFrame()))
-  //   return;
+  if (!(arduboy.nextFrame())) {
+    return;
+  }
+
+  //display.clearDisplay();
 
   // arduboy.pollButtons();
 
@@ -625,11 +638,13 @@ void loop() {
       arduboy.print("Old Miner");
       arduboy.setCursor(30, 4 * FONT_HEIGHT);
       arduboy.print("By Jason");
-      if (arduboy.justPressed(A_BUTTON)) {
+      // if (arduboy.justPressed(A_BUTTON)) {
+      if (digitalRead(A_BUTTON_PIN) == LOW) {
         game_state = STORY;
       }
       break;
     case STORY:
+      display.clearDisplay();
       arduboy.setCursor(0, 0);
       arduboy.print("There's gold in them");
       arduboy.setCursor(0, 1 * FONT_HEIGHT);
