@@ -12,6 +12,8 @@ version 2.1 of the License, or (at your option) any later version.
 // #include <Tinyfont.h>//830 PROGMEM - 28 RAM
 #include "sprites.h"
 
+#include <avr/sleep.h>
+
 #include <SPI.h>
 #include <Wire.h>
 #include <Adafruit_GFX.h>
@@ -67,17 +69,24 @@ static const unsigned char PROGMEM logo16_glcd_bmp[] = { B00000000, B11000000,
 #define RIGHT_BUTTON_PIN A1
 #define UP_BUTTON_PIN A0
 
-#include <Bounce2.h> 
+#include <Bounce2.h>
 
-Bounce2::Button aButton = Bounce2::Button(); 
-Bounce2::Button bButton = Bounce2::Button(); 
-Bounce2::Button upButton = Bounce2::Button(); 
-Bounce2::Button downButton = Bounce2::Button(); 
-Bounce2::Button leftButton = Bounce2::Button(); 
-Bounce2::Button rightButton = Bounce2::Button(); 
+Bounce2::Button aButton = Bounce2::Button();
+Bounce2::Button bButton = Bounce2::Button();
+Bounce2::Button upButton = Bounce2::Button();
+Bounce2::Button downButton = Bounce2::Button();
+Bounce2::Button leftButton = Bounce2::Button();
+Bounce2::Button rightButton = Bounce2::Button();
 
 // TODO - fixme
-#define WHITE 9999
+#define WHITE SH110X_WHITE
+
+int loop_count = 0;
+
+void idle();
+
+uint8_t thisFrameStart = 0;
+uint8_t eachFrameMillis = 30;
 
 class ArduboyJason;
 
@@ -85,10 +94,45 @@ class ArduboyJason {
 public:
   void begin() {}
 
+  // int nextFrame() {
+  //   display.display();
+  //   delay(5);
+  //   display.clearDisplay();
+  //   display.display();
+  //   return 1;
+  // }
+
   int nextFrame() {
-    delay(30);
+    display.display();
+    delay(10);
+    // display.clearDisplay();
+    display.display();
     return 1;
   }
+
+  // int nextFrame() {
+  //   return 1;
+  //   uint8_t now = (uint8_t) millis();
+  //   uint8_t frameDurationMs = now - thisFrameStart;
+  //   if (thisFrameStart) {
+  //     if (frameDurationMs < eachFrameMillis) {
+  //       // Only idle if at least a full millisecond remains, since idle() may
+  //       // sleep the processor until the next millisecond timer interrupt.
+  //       if (++frameDurationMs < eachFrameMillis) {
+  //         idle();
+  //       }
+
+  //       return 0;
+  //     }
+  //   } else {
+  //     thisFrameStart = now;
+  //     return 0;
+  //   }
+  //   thisFrameStart = now;
+  //   // frameCount++;
+
+  //   return 1;
+  // }
 
   void setCursor(int x, int y) {
     display.setCursor(x, y);
@@ -104,15 +148,13 @@ public:
     display.setTextSize(1);
     display.setTextColor(SH110X_WHITE);
     display.print(text);
-    display.display();
-    delay(1);
   }
 
   // TODO - implement
   void initRandomSeed() {}
 
   int justPressed(int button) {
-    switch(button) {
+    switch (button) {
       case A_BUTTON:
         return aButton.pressed();
         break;
@@ -250,6 +292,12 @@ void reset_game() {
   dynamite_sticks = 1;
 }
 
+void idle() {
+  SMCR = _BV(SE);  // select idle mode and enable sleeping
+  sleep_cpu();
+  SMCR = 0;  // disable sleeping
+}
+
 int entity_radius(int type) {
   switch (type) {
     case BIG_ROCK:
@@ -357,9 +405,9 @@ void game_loop() {
     }
   }
 
-  //arduboy.setCursor(0, 2);
-  //arduboy.print("T ");
-  //arduboy.print(time_left / 60);
+  arduboy.setCursor(0, 2);
+  arduboy.print("T ");
+  arduboy.print(time_left / 60);
 
   // then we print to screen what is in the Quotation marks ""
   // arduboy.print(F("Hello, world!"));
@@ -381,9 +429,11 @@ void game_loop() {
     if (e->type == MOUSE1 || e->type == MOUSE_DIAMOND) {
       // transition animation frames every 10 draw frames
       // Sprites::drawPlusMask(e->x, e->y, sprites_plus_mask, (time_left / 10) % 2 == 0 ? MOUSE1 : MOUSE2);
+      display.drawTriangle(e->x, e->y, e->x + 5, e->y, e->x + 2, e->y + 2, WHITE);
 
       if (e->type == MOUSE_DIAMOND) {
         // Sprites::drawPlusMask(e->x, e->y-5, sprites_plus_mask, DIAMOND);
+        display.drawTriangle(e->x, e->y, e->x + 5, e->y, e->x + 2, e->y + 7, WHITE);
       }
 
       // keep running around unless currently being reeled in
@@ -393,9 +443,28 @@ void game_loop() {
         // change movement direction when hitting the wall
         if (e->x > 110 || e->x < 0) e->dir = -e->dir;
       }
+    } else if (e->type == BIG_ROCK) {
+      display.drawCircle(e->x, e->y, 10, WHITE);
+    } else if (e->type == SMALL_ROCK) {
+      display.drawCircle(e->x, e->y, 5, WHITE);
+    } else if (e->type == BIG_GOLD) {
+      display.fillCircle(e->x, e->y, 10, WHITE);
+    } else if (e->type == SMALL_GOLD) {
+      display.fillCircle(e->x, e->y, 5, WHITE);
     } else {
       // Sprites::drawPlusMask(e->x, e->y, sprites_plus_mask, e->type);
     }
+
+    /*
+    const int BIG_ROCK = 0;
+const int BIG_GOLD = 1;
+const int SMALL_ROCK = 2;
+const int SMALL_GOLD = 3;
+const int DIAMOND = 4;
+const int MOUSE1 = 5;
+const int MOUSE2 = 6;
+const int DYNAMITE = 7;
+    */
 
     if (state == SHOOTING & detect_collision(e, claw_x, claw_y)) {
       array_pos_obj_in_claw = i;
@@ -403,7 +472,7 @@ void game_loop() {
     }
   }
 
-  //arduboy.drawLine(64, 4, claw_x, claw_y, WHITE);
+  arduboy.drawLine(64, 4, claw_x, claw_y, WHITE);
 
   if (state == AIMING) {
     // TODO - maybe add some acceleration, rather than constant change of angle
@@ -416,9 +485,9 @@ void game_loop() {
       if (angle > -PI / 2) angle -= 0.02;
       else if (!DEBUG_CONTROLS) direction = RIGHT;
     }
-    // if (arduboy.pressed(DOWN_BUTTON)) {
-    //   state = SHOOTING;
-    // }
+    if (arduboy.justPressed(DOWN_BUTTON)) {
+      state = SHOOTING;
+    }
   }
 
   if (state == SHOOTING) {
@@ -460,13 +529,13 @@ void game_loop() {
     length -= 1.0 / entity_weight(obj_in_claw->type);
 
     // can only throw dynamite when reeling in something
-    // if (arduboy.pressed(UP_BUTTON) && dynamite_sticks > 0 && thrown_dynamite.type == NOTHING) {
-    //   dynamite_sticks--;
-    //   thrown_dynamite.type = DYNAMITE;
-    //   thrown_dynamite.thrown_dist = 0;
-    //   thrown_dynamite.x = 64 - HALF_SPRITE;
-    //   thrown_dynamite.y = -HALF_SPRITE;
-    // }
+    if (arduboy.justPressed(UP_BUTTON) && dynamite_sticks > 0 && thrown_dynamite.type == NOTHING) {
+      dynamite_sticks--;
+      thrown_dynamite.type = DYNAMITE;
+      thrown_dynamite.thrown_dist = 0;
+      thrown_dynamite.x = 64 - HALF_SPRITE;
+      thrown_dynamite.y = -HALF_SPRITE;
+    }
     if (length < 5) {
       length = 5;
       angle = -PI / 4;
@@ -535,12 +604,12 @@ void shop_loop() {
 
   if (arduboy.justPressed(UP_BUTTON) && shop_selection > 0) {
     shop_selection--;
-    //display.clearDisplay();
+    display.clearDisplay();
   }
 
   if (arduboy.justPressed(DOWN_BUTTON) && shop_selection < NUM_ITEMS - 1) {
     shop_selection++;
-    //display.clearDisplay();
+    display.clearDisplay();
   }
 
   if (arduboy.justPressed(A_BUTTON) && items[shop_selection].type != START_DAY) {
@@ -564,6 +633,9 @@ void shop_loop() {
     if (items[0].price) {
       money -= items[0].price;
     }
+    display.clearDisplay();
+    display.display();
+    delay(1);
 
     reset_to_new_day();
     game_state = MINING;
@@ -582,6 +654,7 @@ void shop_loop() {
       // these are only accessed when there is a mouse at a given slot in the array, so safe to unconditionally set it
       entities[i].dir = LEFT;
     }
+    return;
   }
 
   int icon_width = 10;
