@@ -16,6 +16,8 @@ version 2.1 of the License, or (at your option) any later version.
 
 #include <Arduboy2.h>
 #include "sprites.h"
+#include <AceRoutine.h>
+using namespace ace_routine;
 
 // make an instance of arduboy used for many functions
 Arduboy2 arduboy;
@@ -28,7 +30,84 @@ const int SHOOTING = 2;
 const int REELING = 3;
 int state = AIMING;
 
+int loop_counter_1;
 
+COROUTINE(claw) {
+  COROUTINE_LOOP() {
+    // COROUTINE_AWAIT(arduboy.nextFrame());
+    COROUTINE_DELAY(60);
+
+    
+    if (state == SHOOTING) {
+      for (loop_counter_1 = 0; loop_counter_1 < 15; loop_counter_1++) {
+        length += 2;
+        COROUTINE_DELAY(60);
+      }
+      state = REELING;
+    }
+
+    if (state == REELING) {
+      length -= 1;
+      if (length < 5) {
+        length = 5;
+        state = AIMING;
+      }
+    }
+  }
+}
+
+COROUTINE(game) {
+  COROUTINE_LOOP() {
+    //COROUTINE_AWAIT(arduboy.nextFrame());
+    COROUTINE_DELAY(60);
+
+    // first we clear our screen to black
+    arduboy.clear();
+
+    // we set our cursor 5 pixels to the right and 10 down from the top
+    // (positions start at 0, 0)
+    arduboy.setCursor(4, 9);
+
+    // then we print to screen what is in the Quotation marks ""
+    //arduboy.print(F("Hello, world!"));
+
+    Sprites::drawOverwrite(20, 20, sprites, 0);
+
+    arduboy.drawLine(64, 4, 64 + length*sin(angle), 5 + length*cos(angle), WHITE);
+
+    if (state == AIMING) {
+      // TODO - maybe add some acceleration, rather than constant change of angle
+      if (arduboy.pressed(RIGHT_BUTTON)) {
+        angle += 0.05;
+      }
+
+      if (arduboy.pressed(LEFT_BUTTON)) {
+        angle -= 0.05;
+      }
+      if (arduboy.pressed(A_BUTTON)) {
+        state = SHOOTING;
+      }
+    }
+
+    // if (state == SHOOTING) {
+    //   length += 2;
+    //   if (length > 40) {
+    //     state = REELING;
+    //   }
+    // }
+
+    // if (state == REELING) {
+    //   length -= 1;
+    //   if (length < 5) {
+    //     length = 5;
+    //     state = AIMING;
+    //   }
+    // }
+
+    // then we finally we tell the arduboy to display what we just wrote to the display
+    arduboy.display();
+  }
+}
 
 // This function runs once in your game.
 // use it for anything that needs to be set only once in your game.
@@ -45,53 +124,6 @@ void setup() {
 // our main game loop, this runs once every cycle/frame.
 // this is where our game logic goes.
 void loop() {
-  // pause render until it's time for the next frame
-  if (!(arduboy.nextFrame()))
-    return;
-
-  // first we clear our screen to black
-  arduboy.clear();
-
-  // we set our cursor 5 pixels to the right and 10 down from the top
-  // (positions start at 0, 0)
-  arduboy.setCursor(4, 9);
-
-  // then we print to screen what is in the Quotation marks ""
-  //arduboy.print(F("Hello, world!"));
-
-  Sprites::drawOverwrite(20, 20, sprites, 0);
-
-  arduboy.drawLine(64, 4, 64 + length*sin(angle), 5 + length*cos(angle), WHITE);
-
-  if (state == AIMING) {
-    // TODO - maybe add some acceleration, rather than constant change of angle
-    if (arduboy.pressed(RIGHT_BUTTON)) {
-      angle += 0.05;
-    }
-
-    if (arduboy.pressed(LEFT_BUTTON)) {
-      angle -= 0.05;
-    }
-    if (arduboy.pressed(A_BUTTON)) {
-      state = SHOOTING;
-    }
-  }
-
-  if (state == SHOOTING) {
-    length += 2;
-    if (length > 40) {
-      state = REELING;
-    }
-  }
-
-    if (state == REELING) {
-    length -= 1;
-    if (length < 5) {
-      length = 5;
-      state = AIMING;
-    }
-  }
-
-  // then we finally we tell the arduboy to display what we just wrote to the display
-  arduboy.display();
+  claw.runCoroutine();
+  game.runCoroutine();
 }
